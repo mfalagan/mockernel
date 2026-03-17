@@ -1,0 +1,31 @@
+{
+    "name": "mockernel",
+    "runArgs": [ "--hostname=mockernel" ],
+    "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
+    "workspaceFolder": "/workspace",
+    "build":
+    {
+        "dockerfile": "Dockerfile",
+        "args":
+        {
+            "ARM_GNU_TOOLCHAIN_VERSION": "15.2.rel1",
+            "ARM_GNU_TOOLCHAIN_TARGET": "aarch64-none-elf"
+        }
+    },
+    "customizations":
+    {
+        "vscode":
+        {
+            "extensions":
+            [
+                "ms-vscode.makefile-tools",
+                "ZixuanWang.linkerscript",
+                "ms-vscode.cpptools",
+                "arm.armls"
+            ],
+            "settings": {
+                "C_Cpp.default.compilerPath": "/opt/arm-gnu-toolchain/bin/aarch64-none-elf-g++"
+            }
+        }
+    }
+}

@@ -27,3 +27,13 @@ This should be all for setup. I have seen people piece together setups that woul
 That last bit is the punchline, in case you missed it. Validation actually is a nontrivial issue, because how does one validate a kernel development environment without actually developing a kernel. One doesn't, I say. The catch is, a kernel does not need to be a nontrivial development. Not as long as it is not an actual kernel, but a booting demo. In this way, we could non-nontrivialize the original issue, not making it a non-issue, but a trivial one at least. I too got lost for a minute there.
 
 All joking aside, that is the validation strategy: building a minimal booting demo. We can actually come full circle by making it a hello world.
+
+---
+
+With the design done, the obvious firts thing to get on with is the Dev Container. This has two main components: the definition of the container in the [devcontainer.json](../../.devcontainer/devcontainer.json), and the [Dockerfile](../../.devcontainer/Dockerfile) that builds the image.
+
+In the first file just a few lines do important stuff. Namely, they point the devcontainer services to a Dockerfile to build the image, and pass a few parameters into it. These parameters tell the image which version (the latest, at the time of this writing) and flavor (bare-metal 64-bit arm, in our case) of the Arm GNU toolchain to install. The last bit just installs a couple of VS code extensions, mainly to add IntelliSense and syntax highlighting to GNU Arm assembly, C++, Makefile and linker scripts, and points its compiler path to the C++ cross-compiler.
+
+In the second file there aren't any surprises either. From a base Debian image, after installing a few utilities from apt-get, the container fetches, decompresses and saves the Arm cross-toolchain, adding it to the PATH and creating a symling to the C++ cross-compiler for the .json to point VS code to. The last bit just runs the three basic commands asking for the version of the cross-toolchain, emulator, and Devicetree compiler, so as to catch any issues before finishing the build.
+
+With all of this configuration done, we can build the container and reopen the project in it. From now on, all will be done through the Dev Container - although its definition or image may change over time.
