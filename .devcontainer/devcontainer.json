@@ -1,0 +1,4 @@
+{
+	"name": "mockernel",
+	"image": "debian:trixie-slim"
+}
