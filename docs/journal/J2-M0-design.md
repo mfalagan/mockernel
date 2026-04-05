@@ -8,19 +8,25 @@ Primarily motivated by the intent to take this whole project seriously, but also
 
 The Pi 5 has two main advantages I would like to leverage for this setup; *network boot*, and *serial wire debug*. With the former, I envision setting up a TFTP server that serves the latest compilation to the Pi on each boot. With the latter, one can debug on the actual hardware.
 
-The design of this benchmark is deliberately left with some wiggle room to be finely tuned during implementation. I know, I know, we have not completed a single milestone and we already are stretching the limits. What you do not know is that I come from aerospace, where acronyms are chosen before their meaning. I'm sure I can find a way of making this case fit into the methodology text. When I come around to write it, that is.
+---
 
-The main workflows I imagine are:
-- **release:**
-    1. source code gets compiled into `.elf` file
-    2. the `.img` file is generated and stored in the TFTP directory
-    3. the `.dbg` file is generated and stored in the GDB directory 
-- **run:**
-    1. reboot signal is sent to hardware over SWD
-    2. latest `.img` file is served over TFTP
-- **debug:**
-    1. same process as in *run* workflow
-    2. GDB is attached to the hardware via SWD / OpenOCD
+Unfortunately, we have hit our first roadblock...
+
+Turns out the setup I was aiming for relies heavily on the physical setup. The Pi's network boot needs to be in the same level two segment of the network as the server. The debug probe need to be connected via USB to the host running OpenOCD. This aspect is generally very thinly implemented in most virtualization frameworks, I experimented with Colima and OrbStack. This means a normative approach is either terribly host-dependent on this leg, or a painful, sketchy implementation at best, and impossible at worst.
+
+This leaves me with my plan B, making each host- or implementation-dependent part modular, and leaving it as **homework for the user** to set up in each particular environment. I plan on exposing the following services over LAN:
+- **boot media:** access to the boot drive can be provided over FTP
+- **serial:** access to the Pi's UART can be provided over RFC
+- **debugging** Access to the Pi's SWD can be provided by OpenOCD (GBD + Tcl RPC + Telnet)
+
+Making the host mDNS-enabled would make these services available over LAN.
+
+These services can be used within the Dev Container to support the following workflows
+- **build:** builds the kernel
+- **publish:** pushes the boot file tree to the boot media
+- **run:** reboots the Pi over SWD and attaches the console to serial
+- **debug:** is similar to build, but the Pi is halted to await GDB
+- **attach:** runs GDB and attaches it to the Pi
 
 This design has multiple advantages, but mainly, it allows for full debugging on the actual hardware. I still wonder if installing QEMU for fast iteration and testing is a bad idea, but the fact that the Pi 5 is not yet supported pushes me toward deferring this to a later stage. The described setup replaces it entirely.
 
